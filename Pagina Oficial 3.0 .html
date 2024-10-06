@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venta de Tickets - Cancha La Polvosa</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #e9ecef;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: #fff;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        h1 {
+            text-align: center;
+            color: #007bff;
+        }
+        p {
+            text-align: center;
+            color: #555;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="number"], select, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #total {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        .payment-method {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .payment-method h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #007bff;
+        }
+        .credit-card-info {
+            display: none;
+        }
+        /* Estilos para la ventana emergente (modal) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .modal-content h2 {
+            color: #28a745;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .modal-content p {
+            font-size: 16px;
+            margin: 5px 0;
+        }
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 15px;
+            top: 15px;
+        }
+        .close:hover {
+            color: #333;
+        }
+        /* Estilo de tickets mejorado */
+        .tickets {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+        .ticket {
+            width: 250px;
+            margin: 10px;
+            padding: 15px;
+            background-color: #fff;
+            border: 2px dashed #007bff;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .ticket::before,
+        .ticket::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            border: 2px dashed #007bff;
+        }
+        .ticket::before {
+            top: -11px;
+            left: -11px;
+        }
+        .ticket::after {
+            bottom: -11px;
+            right: -11px;
+        }
+        .ticket p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #333;
+        }
+        .ticket .ticket-id {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .ticket .ticket-price {
+            color: #28a745;
+            font-size: 16px;
+        }
+    </style>
+    <script>
+        function calcularTotal() {
+            const precioAdulto = 2;
+            const precioNino = 1;
+            const cantidadAdultos = document.getElementById("adultos").value;
+            const cantidadNinos = document.getElementById("ninos").value;
+
+            const total = (cantidadAdultos * precioAdulto) + (cantidadNinos * precioNino);
+            document.getElementById("total").textContent = "Total a pagar: $" + total;
+        }
+
+        function mostrarFormularioPago() {
+            const metodoPago = document.getElementById("metodoPago").value;
+            const creditCardInfo = document.getElementById("credit-card-info");
+
+            if (metodoPago === "tarjeta") {
+                creditCardInfo.style.display = "block";
+            } else {
+                creditCardInfo.style.display = "none";
+            }
+        }
+
+        function generarTickets(cantidadAdultos, cantidadNinos) {
+            const ticketsContainer = document.getElementById("tickets");
+            ticketsContainer.innerHTML = "";  // Limpiar tickets previos
+
+            // Generar tickets para adultos
+            for (let i = 1; i <= cantidadAdultos; i++) {
+                const ticketAdulto = document.createElement("div");
+                ticketAdulto.classList.add("ticket");
+                ticketAdulto.innerHTML = `<p><strong>Ticket Adulto #${i}</strong></p>
+                                          <p>Cancha La Polvosa</p>
+                                          <p>Partido a las 3:30 PM</p>
+                                          <p class="ticket-id">ID: ADULT-${Math.floor(Math.random() * 10000)}</p>
+                                          <p class="ticket-price">$2</p>`;
+                ticketsContainer.appendChild(ticketAdulto);
+            }
+
+            // Generar tickets para niños
+            for (let i = 1; i <= cantidadNinos; i++) {
+                const ticketNino = document.createElement("div");
+                ticketNino.classList.add("ticket");
+                ticketNino.innerHTML = `<p><strong>Ticket Niño #${i}</strong></p>
+                                        <p>Cancha La Polvosa</p>
+                                        <p>Partido a las 3:30 PM</p>
+                                        <p class="ticket-id">ID: CHILD-${Math.floor(Math.random() * 10000)}</p>
+                                        <p class="ticket-price">$1</p>`;
+                ticketsContainer.appendChild(ticketNino);
+            }
+        }
+
+        function procesarPago() {
+            const cantidadAdultos = document.getElementById("adultos").value;
+            const cantidadNinos = document.getElementById("ninos").value;
+            const total = (cantidadAdultos * 2) + (cantidadNinos * 1);
+            const metodoPago = document.getElementById("metodoPago").value;
+            let metodoTexto = "";
+
+            if (metodoPago === "paypal") {
+                metodoTexto = "PayPal";
+            } else {
+                metodoTexto = "Tarjeta de Crédito";
+            }
+
+            // Mostrar recibo en ventana emergente
+            const modal = document.getElementById("modal");
+            document.getElementById("cantidadAdultosRecibo").textContent = cantidadAdultos;
+            document.getElementById("cantidadNinosRecibo").textContent = cantidadNinos;
+            document.getElementById("totalRecibo").textContent = "$" + total;
+            document.getElementById("metodoRecibo").textContent = metodoTexto;
+            modal.style.display = "flex";
+
+            // Generar tickets
+            generarTickets(cantidadAdultos, cantidadNinos);
+        }
+
+        function cerrarModal() {
+            const modal = document.getElementById("modal");
+            modal.style.display = "none";
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Venta de Tickets - Cancha La Polvosa</h1>
+        <p>Partido hoy a las 3:30 PM</p>
+
+        <label for="adultos">Cantidad de Adultos:</label>
+        <input type="number" id="adultos" min="0" value="0" onchange="calcularTotal()">
+
+        <label for="ninos">Cantidad de Niños:</label>
+        <input type="number" id="ninos" min="0" value="0" onchange="calcularTotal()">
+
+        <label for="metodoPago">Método de Pago:</label>
+        <select id="metodoPago" onchange="mostrarFormularioPago()">
+            <option value="paypal">PayPal</option>
+            <option value="tarjeta">Tarjeta de Crédito</option>
+        </select>
+
+        <div id="credit-card-info" class="credit-card-info">
+            <label for="numeroTarjeta">Número de Tarjeta:</label>
+            <input type="text" id="numeroTarjeta" placeholder="1234 5678 9101 1121">
+            <label for="expiracionTarjeta">Fecha de Expiración:</label>
+            <input type="text" id="expiracionTarjeta" placeholder="MM/YY">
+            <label for="cvvTarjeta">CVV:</label>
+            <input type="text" id="cvvTarjeta" placeholder="123">
+        </div>
+
+        <div id="total">Total a pagar: $0</div>
+
+        <button onclick="procesarPago()">Proceder al Pago</button>
+
+        <!-- Tickets generados -->
+        <div id="tickets" class="tickets"></div>
+    </div>
+
+    <!-- Modal para mostrar el pago exitoso -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal()">&times;</span>
+            <h2>¡Pago Exitoso!</h2>
+            <p><strong>Adultos:</strong> <span id="cantidadAdultosRecibo"></span></p>
+            <p><strong>Niños:</strong> <span id="cantidadNinosRecibo"></span></p>
+            <p><strong>Total:</strong> <span id="totalRecibo"></span></p>
+            <p><strong>Método de Pago:</strong> <span id="metodoRecibo"></span></p>
+            <p>¡Gracias por su compra! Aquí están sus tickets.</p>
+        </div>
+    </div>
+</body>
+</html>
